@@ -1,0 +1,32 @@
+package com.example.digiland.controller;
+
+import com.example.digiland.dto.GameDTO;
+import com.example.digiland.dto.GameRequestDTO;
+import com.example.digiland.model.Game;
+import com.example.digiland.model.LevelType;
+import com.example.digiland.service.GameService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/games")
+@RequiredArgsConstructor
+public class GameController {
+    private final GameService gameService;
+
+    @PostMapping
+    public ResponseEntity<GameDTO> saveGame(@RequestBody GameRequestDTO request) {
+        GameDTO savedGame = gameService.saveGameResult(request);
+        return ResponseEntity.ok(savedGame);
+    }
+
+    @GetMapping("/user/{username}")
+    public ResponseEntity<List<GameDTO>> getUserGames(@PathVariable String username) {
+        List<GameDTO> games = gameService.getUserGames(username);
+        return ResponseEntity.ok(games);
+    }
+}
