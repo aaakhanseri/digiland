@@ -20,4 +20,57 @@ public interface GameRepository extends JpaRepository<Game, Long> {
         LIMIT :limit""",
             nativeQuery = true)
     List<UserStarsProjection> findTopUsersByStars(@Param("limit") int limit);
+
+
+
+    @Query("SELECT COUNT(g) FROM Game g")
+    long getTotalGamesPlayed();
+
+    @Query("SELECT COUNT(DISTINCT g.user.username) FROM Game g")
+    long getTotalPlayers();
+
+    @Query("SELECT SUM(g.durationSeconds) FROM Game g")
+    Long getTotalTimePlayedSeconds();
+
+    @Query("SELECT AVG(g.durationSeconds) FROM Game g")
+    Double getAverageTimePerGame();
+
+    @Query("SELECT AVG(g.correctAnswers) FROM Game g")
+    Double getAverageCorrectAnswersPerGame();
+
+    @Query("SELECT SUM(g.stars) FROM Game g")
+    Long getTotalStarsEarned();
+
+    @Query("SELECT AVG(g.stars) FROM Game g")
+    Double getAverageStarsPerGame();
+
+    @Query("""
+           SELECT g.user.username, COUNT(g) as gameCount
+           FROM Game g
+           GROUP BY g.user.username
+           ORDER BY gameCount DESC
+           LIMIT 1
+           """)
+    List<Object[]> getMostActivePlayer();
+
+
+
+
+
+
+    @Query("""
+        SELECT new com.example.dto.LevelStatsDto(
+            l.levelType,
+            l.levelNumber,
+            COUNT(DISTINCT g.user.username),
+            COUNT(g),
+            AVG(g.stars),
+            AVG(g.durationSeconds)
+        )
+        FROM Game g
+        JOIN g.level l
+        GROUP BY l.levelType, l.levelNumber
+        ORDER BY l.levelType, l.levelNumber
+    """)
+    List<Object[]> getLevelStatsRaw();
 }

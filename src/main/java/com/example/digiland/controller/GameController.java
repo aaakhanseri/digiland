@@ -1,7 +1,9 @@
 package com.example.digiland.controller;
 
+import com.example.digiland.dto.AllLevelsStatsDto;
 import com.example.digiland.dto.GameDTO;
 import com.example.digiland.dto.GameRequestDTO;
+import com.example.digiland.dto.GameStatisticsDto;
 import com.example.digiland.model.Game;
 import com.example.digiland.model.LevelType;
 import com.example.digiland.service.GameService;
@@ -28,5 +30,16 @@ public class GameController {
     public ResponseEntity<List<GameDTO>> getUserGames(@PathVariable String username) {
         List<GameDTO> games = gameService.getUserGames(username);
         return ResponseEntity.ok(games);
+    }
+
+    @GetMapping("/global")
+    public ResponseEntity<GameStatisticsDto> getGlobalStats() {
+        return ResponseEntity.ok(gameService.getStatistics());
+    }
+
+
+    @GetMapping("/levels")
+    public ResponseEntity<AllLevelsStatsDto> getLevelStats() {
+        return ResponseEntity.ok(gameService.getLevelStats());
     }
 }
