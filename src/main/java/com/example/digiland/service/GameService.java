@@ -11,6 +11,7 @@ import com.example.digiland.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -77,7 +78,7 @@ public class GameService {
                 Optional.ofNullable(gameRepository.getAverageStarsPerGame()).orElse(0.0)
         );
 
-        List<Object[]> result = gameRepository.getMostActivePlayer();
+        List<Object[]> result = gameRepository.getMostActivePlayer(PageRequest.of(0, 1));;
         if (!result.isEmpty()) {
             Object[] row = result.get(0);
             dto.setMostActivePlayerUsername((String) row[0]);
@@ -109,27 +110,17 @@ public class GameService {
 
 
     public AllLevelsStatsDto getLevelStats() {
-        List<Object[]> rawData = gameRepository.getLevelStatsRaw();
+        List<LevelStatsDto> stats = gameRepository.getLevelStatsRaw();
 
-        List<LevelStatsDto> levelStats = rawData.stream().map(row -> {
-            LevelType levelType = (LevelType) row[0];
-            int levelNumber = (int) row[1];
-            long uniquePlayers = (long) row[2];
-            long totalGames = (long) row[3];
-            double avgStars = (double) row[4];
-            double avgTime = (double) row[5];
+        // допустим, общее число игроков:
+        long totalPlayers = userRepository.count(); // или получи из UserRepository.count()
 
-            LevelStatsDto dto = new LevelStatsDto();
-            dto.setLevelType(levelType.name());
-            dto.setLevelNumber(levelNumber);
-            dto.setPlayersCompleted(uniquePlayers);
-            dto.setLevelCompletionRate(totalGames == 0 ? 0 : (100.0 * uniquePlayers / totalGames));
-            dto.setAverageStars(avgStars);
-            dto.setAverageTimeSeconds(avgTime);
+        for (LevelStatsDto dto : stats) {
+            double completionRate = totalPlayers == 0 ? 0.0 :
+                    (100.0 * dto.getPlayersCompleted()) / totalPlayers;
+            dto.setLevelCompletionRate(completionRate);
+        }
 
-            return dto;
-        }).toList();
-
-        return new AllLevelsStatsDto(levelStats);
+        return new AllLevelsStatsDto(stats);
     }
 }

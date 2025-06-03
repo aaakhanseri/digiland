@@ -1,5 +1,7 @@
 package com.example.digiland.dto;
 
+import com.example.digiland.model.LevelType;
+
 public class LevelStatsDto {
     private String levelType;
     private int levelNumber;
@@ -7,6 +9,16 @@ public class LevelStatsDto {
     private double levelCompletionRate;
     private double averageStars;
     private double averageTimeSeconds;
+
+    public LevelStatsDto(String levelType, int levelNumber, long playersCompleted,
+                         double averageStars, double averageTimeSeconds) {
+        this.levelType = levelType;
+        this.levelNumber = levelNumber;
+        this.playersCompleted = playersCompleted;
+        this.averageStars = averageStars;
+        this.averageTimeSeconds = averageTimeSeconds;
+        this.levelCompletionRate = 0.0; // Рассчитаем позже
+    }
 
     public String getLevelType() {
         return levelType;
@@ -54,6 +66,11 @@ public class LevelStatsDto {
 
     public void setAverageTimeSeconds(double averageTimeSeconds) {
         this.averageTimeSeconds = averageTimeSeconds;
+    }
+
+
+    // Other constructors, getters and setters remain the same
+    public LevelStatsDto() {
     }
 }
 

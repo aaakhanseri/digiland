@@ -1,5 +1,6 @@
 package com.example.digiland.repository;
 
+import com.example.digiland.dto.LevelStatsDto;
 import com.example.digiland.model.Game;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -45,32 +46,27 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     Double getAverageStarsPerGame();
 
     @Query("""
-           SELECT g.user.username, COUNT(g) as gameCount
-           FROM Game g
-           GROUP BY g.user.username
-           ORDER BY gameCount DESC
-           LIMIT 1
-           """)
-    List<Object[]> getMostActivePlayer();
-
-
-
+       SELECT g.user.username, COUNT(g) as gameCount
+       FROM Game g
+       GROUP BY g.user.username
+       ORDER BY gameCount DESC
+       """)
+    List<Object[]> getMostActivePlayer(Pageable pageable);
 
 
 
     @Query("""
-        SELECT new com.example.dto.LevelStatsDto(
-            l.levelType,
-            l.levelNumber,
-            COUNT(DISTINCT g.user.username),
-            COUNT(g),
-            AVG(g.stars),
-            AVG(g.durationSeconds)
-        )
-        FROM Game g
-        JOIN g.level l
-        GROUP BY l.levelType, l.levelNumber
-        ORDER BY l.levelType, l.levelNumber
-    """)
-    List<Object[]> getLevelStatsRaw();
+    SELECT new com.example.digiland.dto.LevelStatsDto(
+        CAST(l.levelType AS string),
+        l.levelNumber,
+        COUNT(DISTINCT g.user.username),
+        AVG(g.stars),
+        AVG(g.durationSeconds)
+    )
+    FROM Game g
+    JOIN g.level l
+    GROUP BY l.levelType, l.levelNumber
+""")
+    List<LevelStatsDto> getLevelStatsRaw();
+
 }
